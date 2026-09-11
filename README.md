@@ -154,7 +154,17 @@ This template comes with pre-configured GitHub Actions workflows to automate con
 
 The workflows included are:
 
-- `ci.yml` - Runs tests and builds the project, preventing issues and bugs from making their way into production.
+- `ci.yml` - Runs tests, builds the project, and audits dependencies for high or critical security vulnerabilities.
 - `lint.yml` - Runs ESLint to find linting issues, ensuring that your code is always in compliance with your ESLint rules, which can improve code quality and consistency.
+
+
+### Dependency security audit
+
+The CI pipeline automatically checks npm dependencies for high or critical security vulnerabilities using:
+
+```bash
+npm audit --audit-level=high
+You can run the same security audit locally before submitting a pull request:
+
 
 Additionally, a `dependabot.yml` configuration is included and run automatically on a weekly basis. It detects outdated npm packages and creates pull requests to update them, ensuring that your npm packages are always up to date, which can improve security and prevent bugs caused by outdated packages.
