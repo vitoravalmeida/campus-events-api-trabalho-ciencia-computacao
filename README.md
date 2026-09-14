@@ -244,12 +244,3 @@ Tipos principais:
 2. Faça commits pequenos e descritivos, seguindo o Conventional Commits.
 3. Rode `npm run lint` e `npm test` antes de abrir o Pull Request.
 4. Abra o Pull Request descrevendo o que foi feito e referenciando a issue relacionada.
-5. **Peça revisão do outro integrante da dupla antes do merge.**
-
-### Dependency security audit
-
-The CI pipeline automatically checks for high and critical dependency vulnerabilities using:
-
-`npm audit --audit-level=high`
-
-The same command can be run locally before opening a pull request.
