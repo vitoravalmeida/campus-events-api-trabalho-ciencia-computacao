@@ -78,16 +78,16 @@ Siga os passos abaixo do zero para rodar o projeto localmente. Este fluxo foi te
 
 ## Scripts disponíveis
 
-| Script         | Descrição                                                       |
-| -------------- | ---------------------------------------------------------------- |
-| `npm start`    | Inicia o servidor em modo produção (a partir de `dist/`)          |
-| `npm run dev`  | Inicia o servidor em modo desenvolvimento com hot reload          |
-| `npm run build`| Compila o projeto TypeScript para JavaScript (`tsc`)              |
-| `npm run lint` | Roda o ESLint para encontrar problemas de estilo/qualidade        |
-| `npm run lint:fix` | Corrige automaticamente os problemas encontrados pelo ESLint  |
-| `npm test`     | Roda a suíte de testes com Vitest                                 |
-| `npm run db:up`   | Sobe os containers de banco de dados (dev e test) via Docker  |
-| `npm run db:down` | Para e remove os containers de banco de dados                 |
+| Script             | Descrição                                                    |
+| ------------------ | ------------------------------------------------------------ |
+| `npm start`        | Inicia o servidor em modo produção (a partir de `dist/`)     |
+| `npm run dev`      | Inicia o servidor em modo desenvolvimento com hot reload     |
+| `npm run build`    | Compila o projeto TypeScript para JavaScript (`tsc`)         |
+| `npm run lint`     | Roda o ESLint para encontrar problemas de estilo/qualidade   |
+| `npm run lint:fix` | Corrige automaticamente os problemas encontrados pelo ESLint |
+| `npm test`         | Roda a suíte de testes com Vitest                            |
+| `npm run db:up`    | Sobe os containers de banco de dados (dev e test) via Docker |
+| `npm run db:down`  | Para e remove os containers de banco de dados                |
 
 ## Variáveis de ambiente
 
@@ -229,8 +229,8 @@ chore(deps): atualiza dependências via Dependabot
 
 Tipos principais:
 
-| Tipo       | Quando usar                                                       |
-| ---------- | ------------------------------------------------------------------ |
+| Tipo       | Quando usar                                                         |
+| ---------- | ------------------------------------------------------------------- |
 | `feat`     | Nova funcionalidade                                                 |
 | `fix`      | Correção de bug                                                     |
 | `docs`     | Alterações apenas em documentação                                   |
