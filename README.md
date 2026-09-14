@@ -1,158 +1,242 @@
-# Node.js API Template
+# Campus Events API
 
-> A Node.js API template with Express, TypeScript and PostgreSQL
+> API para gerenciamento de eventos do campus e inscrições de participantes, construída com Node.js, Express, TypeScript e PostgreSQL.
 
-[![CI](https://github.com/miikkaylisiurunen/template-node-express/actions/workflows/ci.yml/badge.svg)](https://github.com/miikkaylisiurunen/template-node-express/actions/workflows/ci.yml)
+[![CI](https://github.com/vitoravalmeida/campus-events-api-trabalho-ciencia-computacao/actions/workflows/ci.yml/badge.svg)](https://github.com/vitoravalmeida/campus-events-api-trabalho-ciencia-computacao/actions/workflows/ci.yml)
 
-## Table of contents
+## Sobre o projeto
 
-- [Features](#features)
-- [How to use](#how-to-use)
-  - [Requirements](#requirements)
-  - [Getting started](#getting-started)
-  - [Scripts](#scripts)
-  - [Default routes](#default-routes)
-- [Directory structure](#directory-structure)
-- [Consistent error handling](#consistent-error-handling)
-  - [Throwing consistent errors](#throwing-consistent-errors)
-  - [Error handler middleware](#error-handler-middleware)
-- [Testing](#testing)
-  - [Running tests](#running-tests)
-  - [Automated tests](#automated-tests)
-- [Continuous integration](#continuous-integration)
+O **Campus Events API** é o backend responsável por gerenciar **eventos do campus** (palestras, workshops, feiras, etc.) e as **inscrições** de participantes nesses eventos. O projeto foi construído a partir de um template genérico de Node.js + Express, e este README documenta o setup, a estrutura de pastas e as convenções aplicadas ao domínio real do projeto.
 
-## Features
+> ⚠️ **Nota para quem está migrando o código do template:** as rotas de exemplo `/people` (herdadas do template original) ainda estão presentes no código apenas como referência de implementação (controller, rotas, queries, migration). Elas devem ser substituídas/complementadas pelas entidades reais do domínio, como `events` (eventos) e `registrations` (inscrições), seguindo o mesmo padrão de arquitetura descrito abaixo.
 
-- Continuous integration with GitHub Actions
-- Type safety enforced with TypeScript to minimize errors and improve maintainability
-- Custom error handling for better user experience and efficient bug tracking
-- Tests powered by [Vitest](https://vitest.dev/) and [Supertest](https://github.com/ladjs/supertest)
-- Runtime validation with [Zod](https://zod.dev/) to ensure data quality and consistency
-- Database migrations using [node-pg-migrate](https://github.com/salsita/node-pg-migrate) for efficient database management
-- Basic request and error logging using [Pino](https://getpino.io/)
-- Dockerfile for easy deployment and containerization
-- Dependency injection for better testability and decoupling of code components
-- Docker Compose for convenient development database setup
-- Dependabot integration for automatic npm package updates and improved security
-- Code formatting and linting with [Prettier](https://prettier.io) and [ESLint](https://eslint.org/) to improve code quality and consistency
-- Environment variable validation
+## Índice
 
-## How to use
+- [Requisitos](#requisitos)
+- [Como começar (passo a passo)](#como-começar-passo-a-passo)
+- [Scripts disponíveis](#scripts-disponíveis)
+- [Variáveis de ambiente](#variáveis-de-ambiente)
+- [Rotas principais](#rotas-principais)
+- [Estrutura do projeto](#estrutura-do-projeto)
+- [Tratamento de erros](#tratamento-de-erros)
+- [Testes](#testes)
+- [Integração contínua (CI)](#integração-contínua-ci)
+- [Convenções de branch e commits](#convenções-de-branch-e-commits)
+- [Como contribuir](#como-contribuir)
 
-### Requirements
+## Requisitos
 
-- Node.js v20 or higher
-- Docker
+- [Node.js](https://nodejs.org/) v22 ou superior (versão utilizada em CI/Docker, conforme `.nvmrc`)
+- [Docker](https://www.docker.com/) e Docker Compose (para subir o banco de dados PostgreSQL local)
 
-### Getting started
+## Como começar (passo a passo)
 
-1. Clone the repository:
+Siga os passos abaixo do zero para rodar o projeto localmente. Este fluxo foi testado e não deve gerar erros:
+
+1. **Clone o repositório:**
+
+   ```bash
+   git clone https://github.com/vitoravalmeida/campus-events-api-trabalho-ciencia-computacao.git
+   cd campus-events-api-trabalho-ciencia-computacao
    ```
-   git clone https://github.com/miikkaylisiurunen/template-node-express.git
-   ```
-2. Change to the project directory:
-   ```
-   cd template-node-express
-   ```
-3. Copy `.env.example` to `.env`:
-   ```
+
+2. **Copie o arquivo de variáveis de ambiente:**
+
+   ```bash
    cp .env.example .env
    ```
-4. Install npm packages:
-   ```
+
+   Os valores padrão do `.env.example` já são compatíveis com as credenciais definidas no `docker-compose.yml`. Se você alterar as credenciais em um dos arquivos, lembre-se de atualizar o outro também, senão a aplicação não conseguirá se conectar ao banco.
+
+3. **Instale as dependências:**
+
+   ```bash
    npm install
    ```
-5. Start the database services with Docker Compose:
-   ```
+
+4. **Suba o banco de dados PostgreSQL com Docker Compose:**
+
+   ```bash
    npm run db:up
    ```
-6. Start the development server:
-   ```
+
+   Esse comando sobe dois bancos: um para desenvolvimento (`api_dev`, porta `4329`) e outro para testes (`api_test`, porta `4328`).
+
+5. **Inicie o servidor de desenvolvimento:**
+
+   ```bash
    npm run dev
    ```
 
-**Note:** If you update the database credentials in either the `.env` or `docker-compose.yml` file, be sure to also update the other file with the same changes to ensure that the database can still be accessed correctly.
+   As migrations do banco são aplicadas automaticamente ao iniciar a aplicação (`src/database/migrate.ts`). Se tudo der certo, o log deve mostrar `Server is up on port 3001` (ou a porta definida em `PORT` no `.env`).
 
-### Scripts
+6. **(Opcional) Pare os containers do banco quando não precisar mais deles:**
+
+   ```bash
+   npm run db:down
+   ```
+
+## Scripts disponíveis
+
+| Script         | Descrição                                                       |
+| -------------- | ---------------------------------------------------------------- |
+| `npm start`    | Inicia o servidor em modo produção (a partir de `dist/`)          |
+| `npm run dev`  | Inicia o servidor em modo desenvolvimento com hot reload          |
+| `npm run build`| Compila o projeto TypeScript para JavaScript (`tsc`)              |
+| `npm run lint` | Roda o ESLint para encontrar problemas de estilo/qualidade        |
+| `npm run lint:fix` | Corrige automaticamente os problemas encontrados pelo ESLint  |
+| `npm test`     | Roda a suíte de testes com Vitest                                 |
+| `npm run db:up`   | Sobe os containers de banco de dados (dev e test) via Docker  |
+| `npm run db:down` | Para e remove os containers de banco de dados                 |
+
+## Variáveis de ambiente
+
+Definidas em `.env` (veja `.env.example`) e validadas em `src/config.ts` com Zod:
 
 ```
-start       # start the production server
-dev         # start the development server
-build       # build the project using tsc
-lint        # find ESLint issues
-lint:fix    # fix ESLint issues
-test        # run tests
-db:up       # start the database services with docker compose
-db:down     # stop and remove the database services
+# desenvolvimento
+PORT="3001"
+DATABASE_URL="postgres://api:password@localhost:4329/api_dev"
+
+# testes
+TEST_PORT="3002"
+TEST_DATABASE_URL="postgres://api:password@localhost:4328/api_test"
 ```
 
-### Default routes
+- `PORT` / `DATABASE_URL`: usados pela aplicação em modo normal (`npm run dev` / `npm start`).
+- `TEST_PORT` / `TEST_DATABASE_URL`: usados pela suíte de testes, apontando para o banco de testes isolado.
+
+## Rotas principais
 
 ```
-GET /people         # get all people from the database
-POST /people        # add a new person with required body properties: "name" and "age"
+GET  /health         # health check básico (status da API)
+GET  /health/deep    # health check completo (status da API + conexão com o banco)
 
-GET /health         # basic health check (api status)
-GET /health/deep    # complete health check (api status + database connection)
+GET  /people         # [exemplo do template] lista registros de "people"
+POST /people         # [exemplo do template] cria um registro de "people"
 ```
 
-## Directory structure
+As rotas de `/people` servem hoje como **referência de implementação** (controller + rotas + queries + migration) para o padrão a ser seguido pelas novas rotas do domínio de eventos, por exemplo:
+
+```
+GET  /events              # lista os eventos do campus
+POST /events               # cria um novo evento
+GET  /events/:id           # detalha um evento específico
+POST /events/:id/registrations   # inscreve um participante em um evento
+GET  /events/:id/registrations   # lista as inscrições de um evento
+```
+
+> As rotas de eventos/inscrições acima ainda estão em desenvolvimento. Ao implementá-las, siga a mesma organização usada em `people`: uma migration em `migrations/`, tipos e queries em `src/database`, um controller em `src/controllers` e as rotas em `src/routes`, registradas em `src/app.ts`.
+
+## Estrutura do projeto
 
 ```
 .
-├── .github          # CI workflows and dependabot config to keep npm packages up to date
-├── migrations       # database migration scripts
+├── .github            # workflows de CI (testes, lint) e configuração do Dependabot
+├── migrations         # scripts de migration do banco de dados (ex.: criação da tabela de eventos)
 └── src
-    ├── controllers  # route controllers
-    ├── database     # database queries, tests and file to run migrations
-    ├── errors       # custom errors for easier error handling
-    ├── middleware   # middleware functions
-    └── routes       # routes and their tests
+    ├── controllers    # lógica de cada rota (ex.: controllers/events.ts, controllers/registrations.ts)
+    ├── database       # conexão com o banco, queries SQL e tipos (ex.: Event, Registration)
+    ├── errors         # classe de erro customizada (HttpError) para respostas consistentes
+    ├── middleware     # middlewares (logger, tratamento de erros, rota não encontrada)
+    └── routes         # definição das rotas e seus testes de integração
 ```
 
-## Consistent error handling
+Aplicando ao domínio de eventos, o fluxo de uma requisição `POST /events` seria:
 
-### Throwing consistent errors
+1. `src/routes/events.ts` recebe a requisição e delega para o controller.
+2. `src/controllers/events.ts` valida o corpo da requisição (ex.: com um schema Zod `Event`) e chama as queries.
+3. `src/database/queries.ts` executa o `INSERT` na tabela `events` e retorna o registro criado.
+4. Em caso de erro (dado inválido, evento não encontrado etc.), lança-se um `HttpError`, tratado pelo middleware de erro (`src/middleware`).
 
-To ensure consistent error responses and HTTP status codes, use the `HttpError` class when throwing an error. This custom error class is included in the template and provides a straightforward way to throw errors.
+## Tratamento de erros
 
-### Error handler middleware
+Para manter respostas de erro consistentes, use a classe `HttpError` (`src/errors/index.ts`) ao lançar erros esperados, por exemplo:
 
-An error handling middleware is included to handle and send consistent responses when errors occur. By default, the error response format is as follows:
+```ts
+throw new HttpError(404, 'Evento não encontrado');
+```
+
+O middleware de erro (`src/middleware/index.ts`) já trata:
+
+- Erros `HttpError` lançados explicitamente (status e mensagem definidos por quem lançou o erro).
+- Erros de validação `ZodError` (respondidos automaticamente com status `400`).
+- Qualquer outro erro não tratado (respondido com status `500`).
+
+Formato padrão de resposta de erro:
 
 ```json
 {
-  "status": 401,
-  "message": "Unauthorized",
+  "status": 404,
+  "message": "Evento não encontrado",
   "name": "HttpError"
 }
 ```
 
-You can specify your own `status` and `message` when using the custom `HttpError` class to throw errors. A catch-all error handler is also included which returns a `500` status code whenever an unhandled error is thrown.
+## Testes
 
-## Testing
+Os testes usam [Vitest](https://vitest.dev/) e [Supertest](https://github.com/ladjs/supertest), cobrindo rotas (`src/routes/*.test.ts`) e queries (`src/database/*.test.ts`).
 
-This template comes with tests powered by [Vitest](https://vitest.dev) and [Supertest](https://github.com/ladjs/supertest) to ensure the quality and stability of your application through unit and integration testing.
+Para rodar os testes localmente (com o banco de testes já disponível via `npm run db:up`):
 
-### Running tests
-
-You can manually run tests with the following command:
-
-```
+```bash
 npm test
 ```
 
-This command will run all tests in the `src` directory and output the results to the console.
+Ao adicionar novas entidades do domínio (eventos, inscrições), crie os testes correspondentes seguindo o padrão já existente em `people.test.ts` e `health.test.ts`.
 
-### Automated tests
+## Integração contínua (CI)
 
-A GitHub Actions workflow is included to automatically run tests. Refer to the [Continuous integration](#continuous-integration) section for more information.
+O projeto conta com workflows do GitHub Actions em `.github/workflows`:
 
-## Continuous integration
+- `ci.yml`: roda os testes e o build do projeto a cada push/PR na branch principal.
+- `lint.yml`: roda o ESLint para garantir a qualidade e o padrão do código.
 
-This template comes with pre-configured GitHub Actions workflows to automate continuous integration (CI) and ensure that your code is always tested before being merged into the main branch. The workflows run automatically on every push to the `main` branch, or when a pull request is opened, reopened, or synchronized.
+Além disso, `.github/dependabot.yml` mantém as dependências npm atualizadas automaticamente.
 
-The workflows included are:
+## Convenções de branch e commits
+
+### Branches
+
+Use o padrão `<tipo>/<descrição-curta>`, em minúsculas e separado por hífens. Exemplos:
+
+```
+feat/events-crud
+feat/registrations-endpoint
+fix/health-check-timeout
+docs/readme-guide
+```
+
+Tipos mais comuns: `feat`, `fix`, `docs`, `refactor`, `test`, `chore`.
+
+### Commits (Conventional Commits)
+
+Siga o padrão [Conventional Commits](https://www.conventionalcommits.org/):
+
+```
+<tipo>(<escopo opcional>): <descrição curta no imperativo>
+```
+
+Exemplos:
+
+```
+feat(events): adiciona endpoint de criação de evento
+fix(registrations): corrige validação de inscrição duplicada
+docs(readme): atualiza guia de setup para o domínio de eventos
+test(events): adiciona testes de integração para GET /events
+chore(deps): atualiza dependências via Dependabot
+```
+
+Tipos principais:
+
+| Tipo       | Quando usar                                                       |
+| ---------- | ------------------------------------------------------------------ |
+| `feat`     | Nova funcionalidade                                                 |
+| `fix`      | Correção de bug                                                     |
+| `docs`     | Alterações apenas em documentação                                   |
+| `refactor` | Alteração de código que não corrige bug nem adiciona funcionalidade |
+| `test`     | Adição ou ajuste de testes                                          |
+| `chore`    | Tarefas de manutenção (dependências, configs, etc.)                 |
 
 - `ci.yml` - Runs tests, builds the project, and audits dependencies for high or critical security vulnerabilities.
 - `lint.yml` - Runs ESLint to find linting issues, ensuring that your code is always in compliance with your ESLint rules, which can improve code quality and consistency.
@@ -168,3 +252,10 @@ You can run the same security audit locally before submitting a pull request:
 
 
 Additionally, a `dependabot.yml` configuration is included and run automatically on a weekly basis. It detects outdated npm packages and creates pull requests to update them, ensuring that your npm packages are always up to date, which can improve security and prevent bugs caused by outdated packages.
+## Como contribuir
+
+1. Crie uma branch a partir da `main` seguindo a convenção acima.
+2. Faça commits pequenos e descritivos, seguindo o Conventional Commits.
+3. Rode `npm run lint` e `npm test` antes de abrir o Pull Request.
+4. Abra o Pull Request descrevendo o que foi feito e referenciando a issue relacionada.
+5. **Peça revisão do outro integrante da dupla antes do merge.**
